@@ -1,0 +1,59 @@
+[
+  {
+    "id": "user-cand-1",
+    "email": "candidat@demo.ma",
+    "firstName": "Driss",
+    "lastName": "Alaoui",
+    "role": "CANDIDAT",
+    "phone": "+212 6 61 23 45 67",
+    "cin": "CD789123",
+    "cneCnie": "N134567890",
+    "degreeName": "Master Spécialisé en Intelligence Artificielle & Big Data",
+    "institution": "Faculté des Sciences Dhar El Mahraz - Fès",
+    "isActive": true,
+    "createdAt": "2026-10-15T09:00:00Z",
+    "passwordHash": "$2b$10$y2S9wA.58P2VzYKQ1NtOvO32dRtETcmCL1SIaXHTf.sj9hT.bjz.."
+  },
+  {
+    "id": "user-prof-1",
+    "email": "directeur.these@demo.ma",
+    "firstName": "Rachid",
+    "lastName": "Berrada",
+    "title": "Pr.",
+    "role": "DIRECTEUR_THESE",
+    "phone": "+212 5 35 60 80 10",
+    "department": "Département d'Informatique & Génie Électrique",
+    "institution": "Faculté des Sciences et Techniques (FST) Fès",
+    "isActive": true,
+    "createdAt": "2026-09-01T08:00:00Z",
+    "passwordHash": "$2b$10$tlihTCGxm/sYOdZ77cjPSu3vsyckTcfa56bC.TvfRWJ7upwdOlpH6"
+  },
+  {
+    "id": "user-ced-1",
+    "email": "directeur.ced@demo.ma",
+    "firstName": "Fatima Zahra",
+    "lastName": "Bennani",
+    "title": "Pr.",
+    "role": "DIRECTEUR_CED",
+    "phone": "+212 5 35 60 99 00",
+    "department": "Direction du Centre d'Études Doctorales (CED-ST)",
+    "institution": "Université Sidi Mohamed Ben Abdellah",
+    "isActive": true,
+    "createdAt": "2026-09-01T08:00:00Z",
+    "passwordHash": "$2b$10$Ya3oi37xxSG/vZ0AzSuNIOZhUASMrVZkNp3gLKpc.PqHY2AmWcXYG"
+  },
+  {
+    "id": "user-admin-1",
+    "email": "admin@demo.ma",
+    "firstName": "Karim",
+    "lastName": "El Fassi",
+    "title": "M.",
+    "role": "ADMINISTRATEUR",
+    "phone": "+212 5 35 60 99 05",
+    "department": "Service des Admissions Doctorales & Systèmes d'Information",
+    "institution": "Présidence USMBA",
+    "isActive": true,
+    "createdAt": "2026-09-01T08:00:00Z",
+    "passwordHash": "$2b$10$IsG7e/N9O7hZhoYZSafbd.7GT5HtOQE7rzjX5DZNF5HA/IuhrVMUe"
+  }
+]

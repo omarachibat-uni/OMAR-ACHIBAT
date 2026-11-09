@@ -1,0 +1,6 @@
+{
+  "name": "Plateforme Doctorat Maroc - Gestion des Candidatures",
+  "description": "Plateforme web universitaire institutionnelle de gestion des candidatures au doctorat selon la réglementation marocaine (décision ministérielle n° 1886.23).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

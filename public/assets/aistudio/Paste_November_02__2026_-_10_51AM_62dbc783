@@ -1,0 +1,900 @@
+# PROMPT — DÉVELOPPEMENT D'UNE PLATEFORME WEB DE GESTION DES CANDIDATURES AU DOCTORAT
+
+## 1. Contexte et objectif du projet
+
+Tu es un développeur full-stack senior, un architecte logiciel et un expert UI/UX spécialisé dans les plateformes universitaires.
+
+Je souhaite que tu développes une **application web complète, fonctionnelle et professionnelle pour la gestion des candidatures au doctorat**, dans le cadre d'un projet universitaire.
+
+L'application doit permettre de gérer l'ensemble du processus, depuis la publication des sujets de thèse jusqu'à la confirmation de l'inscription administrative initiale.
+
+Le projet s'inspire du processus décrit dans la réglementation marocaine relative aux études doctorales, notamment la décision ministérielle n° 1886.23 du 1er août 2024.
+
+**Attention au périmètre :** le projet concerne exclusivement les candidatures, la sélection et l'inscription initiale. Il ne doit pas gérer le déroulement des études doctorales, les formations doctorales, le suivi des travaux de recherche ou les soutenances de thèse.
+
+L'objectif est de construire une véritable application web et non une simple maquette.
+
+Toutes les pages, tous les boutons, les formulaires, les workflows et les opérations de gestion doivent fonctionner réellement avec une base de données.
+
+## 2. Technologies obligatoires
+
+Utilise les technologies suivantes :
+
+### Frontend
+- React.js avec Vite
+- JavaScript ou TypeScript, de préférence TypeScript
+- Tailwind CSS
+- React Router
+- Axios
+- React Hook Form et Zod pour la validation
+- FullCalendar pour le calendrier des entretiens
+- Lucide React pour les icônes
+
+### Backend
+- Node.js
+- Express.js
+- API REST
+- Prisma ORM
+- JWT avec cookies HttpOnly sécurisés
+- bcrypt pour le hachage des mots de passe
+- Multer pour les documents
+- Nodemailer pour les emails
+- node-cron ou un système de tâches planifiées pour les expirations
+
+### Base de données
+- MySQL
+
+Organise le projet en deux dossiers principaux :
+
+- `frontend/`
+- `backend/`
+
+Le code doit être structuré, maintenable, modulaire et documenté.
+
+## 3. Design et interface utilisateur
+
+Je souhaite un **design universitaire classique et institutionnel**, inspiré des plateformes officielles des universités.
+
+### Identité visuelle
+
+- Bleu marine : `#17365D`
+- Blanc : `#FFFFFF`
+- Gris clair : `#E9EDF2`
+- Doré discret : `#B69248`
+
+L'interface doit être sérieuse, élégante, accessible, responsive et entièrement en français.
+
+Prévoir :
+
+- Un en-tête institutionnel avec un emplacement pour le logo de l'université.
+- Une page d'accueil publique.
+- Une navigation claire.
+- Des formulaires professionnels.
+- Des tableaux avec recherche, filtres, pagination et tri.
+- Des cartes statistiques.
+- Des badges de statut.
+- Des messages de confirmation et d'erreur.
+- Des fenêtres de confirmation pour les actions sensibles.
+- Des tableaux de bord adaptés aux rôles.
+- Une barre d'avancement dynamique du dossier.
+- Un calendrier interactif pour les entretiens.
+
+Ne pas utiliser un design excessivement futuriste ou des animations inutiles.
+
+## 4. Gestion des rôles et permissions
+
+L'application possède quatre rôles principaux.
+
+### Rôle 1 : Candidat / Étudiant
+
+Il peut :
+
+- Créer son compte.
+- Se connecter et se déconnecter.
+- Modifier ses informations personnelles.
+- Consulter les sujets de thèse publiés.
+- Consulter les détails d'un sujet et son directeur de thèse.
+- Choisir un seul sujet de thèse pour la campagne.
+- Préparer et déposer sa candidature.
+- Télécharger ses documents justificatifs.
+- Consulter le statut de son dossier.
+- Voir sa barre d'avancement.
+- Recevoir les notifications.
+- Corriger son dossier lorsqu'une correction est demandée.
+- Consulter sa convocation à l'entretien.
+- Consulter son résultat après publication.
+- Consulter les instructions d'inscription en cas d'admission.
+
+### Rôle 2 : Directeur de thèse
+
+Il peut, pour les sujets et candidatures qui le concernent :
+
+- Consulter ses sujets de thèse.
+- Consulter les candidatures associées.
+- Participer à la présélection lorsque cela lui est autorisé.
+- Consulter les convocations et le calendrier de ses entretiens.
+- Participer aux entretiens.
+- Saisir une note sur 20 et un commentaire.
+- Consulter les résultats publiés.
+
+Il ne doit pas pouvoir modifier arbitrairement les décisions officielles ou les dossiers qui ne le concernent pas.
+
+### Rôle 3 : Directeur
+
+Pour cette première version, considère ce rôle comme le responsable du Centre d'Études Doctorales (CED).
+
+Il peut :
+
+- Superviser la campagne.
+- Consulter l'ensemble des candidatures.
+- Superviser la présélection.
+- Consulter et organiser les entretiens.
+- Consulter les évaluations.
+- Organiser la délibération et l'établissement des résultats.
+- Valider les résultats officiels, selon les permissions prévues.
+- Superviser les inscriptions initiales.
+- Consulter les statistiques et les journaux d'activité.
+
+Cette définition est provisoire et doit pouvoir être ajustée facilement si l'enseignant précise les responsabilités exactes.
+
+### Rôle 4 : Administrateur
+
+Il peut :
+
+- Gérer les comptes et les rôles.
+- Configurer l'unique campagne.
+- Définir les dates d'ouverture et de clôture.
+- Gérer les sujets de thèse.
+- Configurer les documents exigés.
+- Gérer les paramètres de notification.
+- Superviser les candidatures.
+- Organiser les entretiens selon ses permissions.
+- Gérer les inscriptions administratives.
+- Consulter les statistiques.
+- Consulter le journal d'audit.
+- Configurer les paramètres techniques de l'application.
+
+Prévoir un contrôle d'accès strict côté backend et côté frontend.
+
+Ne jamais considérer qu'un utilisateur est autorisé simplement parce qu'un bouton lui est affiché.
+
+### Commission de sélection
+
+La commission intervient dans la présélection, les entretiens et la délibération.
+
+Elle n'est pas nécessairement un cinquième rôle.
+
+Prévoir un système d'affectation de membres habilités aux commissions, à partir des comptes existants, avec des permissions spécifiques.
+
+Les résultats officiels doivent être validés avant publication.
+
+## 5. Gestion d'une campagne unique
+
+L'application gère **une seule campagne de candidature**.
+
+L'administrateur peut :
+
+- Définir son nom et son année universitaire.
+- Définir les dates d'ouverture et de clôture.
+- Configurer son statut : préparation, ouverte, fermée ou clôturée.
+- Publier les sujets.
+- Ouvrir et fermer les candidatures.
+- Suivre les étapes de sélection.
+
+Lorsque les candidatures sont fermées, aucun nouveau dossier ne peut être soumis.
+
+Les dossiers déjà soumis restent accessibles aux personnes autorisées pour leur traitement.
+
+La fermeture de la période de candidature ne doit pas annuler les corrections déjà accordées : celles-ci suivent leurs propres délais.
+
+## 6. Gestion des sujets de thèse
+
+Chaque sujet contient au minimum :
+
+- Identifiant
+- Titre
+- Description
+- Domaine ou discipline
+- Mots-clés
+- Directeur de thèse
+- Établissement ou structure de recherche
+- Statut de publication
+- Date de création
+
+Le candidat doit pouvoir rechercher et filtrer les sujets.
+
+**Règle métier obligatoire : un candidat ne peut soumettre qu'une seule candidature, pour un seul sujet, pendant la campagne.**
+
+Avant la soumission, il peut modifier son choix.
+
+Après la soumission, le sujet choisi est verrouillé, y compris pendant les périodes de correction.
+
+Cette contrainte doit être garantie dans la base de données et dans le backend.
+
+## 7. Inscription et authentification
+
+Créer les pages suivantes :
+
+- Connexion
+- Création de compte candidat
+- Mot de passe oublié
+- Réinitialisation du mot de passe
+- Profil utilisateur
+- Modification du mot de passe
+
+Lors de la création du compte candidat, demander les informations nécessaires, par exemple :
+
+- Nom
+- Prénom
+- Email
+- Téléphone
+- Identifiant national approprié
+- Diplôme
+- Établissement d'origine
+
+Utiliser une validation frontend et backend.
+
+Les comptes administratifs et institutionnels doivent être créés ou attribués par une personne habilitée.
+
+Ne pas permettre à un utilisateur de choisir librement un rôle privilégié lors de son inscription.
+
+## 8. Dépôt des candidatures
+
+Le candidat doit pouvoir :
+
+1. Consulter les sujets.
+2. Sélectionner un sujet.
+3. Compléter son formulaire.
+4. Déposer les documents.
+5. Vérifier les informations.
+6. Soumettre définitivement sa candidature.
+
+Prévoir les statuts :
+
+- Brouillon
+- Soumise
+- En cours de vérification
+- Incomplète
+- En attente de correction
+- Complète
+- En présélection
+- Non présélectionnée
+- Présélectionnée
+- Entretien programmé
+- Entretien effectué
+- En attente de délibération
+- Admise
+- Liste d'attente
+- Refusée
+- Rejetée pour expiration du délai
+- En attente d'inscription administrative
+- Inscription confirmée
+
+Tu peux organiser ces statuts en plusieurs dimensions techniques si nécessaire, afin d'éviter les transitions incohérentes.
+
+## 9. Gestion des documents
+
+L'administrateur doit pouvoir configurer les documents demandés.
+
+Prévoir initialement les types suivants, à titre de configuration modifiable :
+
+- CV
+- CIN ou passeport
+- Diplôme de Master ou équivalent
+- Relevés de notes
+- Projet de recherche
+- Lettre de motivation facultative
+
+Ces documents sont des exemples de paramétrage, et non une liste réglementaire imposée.
+
+Pour chaque document :
+
+- Autoriser les formats appropriés, notamment PDF.
+- Définir une taille maximale configurable.
+- Vérifier la présence des pièces obligatoires.
+- Permettre une vérification humaine de leur validité.
+- Protéger les fichiers contre les accès non autorisés.
+- Conserver la traçabilité des remplacements.
+
+Ne pas considérer qu'un document est valide simplement parce qu'un fichier a été téléversé.
+
+## 10. Gestion des dossiers incomplets et délai de 72 heures
+
+Cette fonctionnalité est obligatoire et prioritaire.
+
+Lorsqu'un responsable examine un dossier, il peut le déclarer complet ou incomplet.
+
+### Si le dossier est complet
+
+Il passe à l'étape suivante de sélection.
+
+### Si le dossier est incomplet
+
+Le responsable doit indiquer précisément les éléments manquants ou incorrects.
+
+Le système doit alors :
+
+1. Enregistrer la demande de correction.
+2. Fixer une date limite exactement 72 heures après la notification officielle.
+3. Envoyer un email au candidat.
+4. Afficher une notification dans son espace.
+5. Afficher un compte à rebours.
+6. Autoriser uniquement les modifications demandées.
+7. Empêcher tout changement de sujet de thèse.
+
+### Si le candidat corrige à temps
+
+- Il soumet ses corrections.
+- La date et l'heure de soumission sont enregistrées.
+- Le dossier retourne en vérification.
+- Le responsable peut accepter les corrections ou demander une nouvelle correction selon les règles configurées.
+- Le dossier ne doit pas être rejeté automatiquement pendant que les corrections soumises à temps attendent leur vérification.
+
+### Si le délai expire
+
+Si aucune correction n'a été soumise avant la date limite :
+
+- Le dossier est automatiquement rejeté.
+- Son statut devient « Rejetée pour expiration du délai ».
+- Les modifications sont bloquées.
+- Un email de rejet est envoyé.
+- Une notification interne est créée.
+- L'événement est enregistré dans le journal d'audit.
+
+**Le timeout correspond exclusivement à ce délai de correction de 72 heures. Il ne s'agit pas d'un timeout réseau.**
+
+Le backend doit vérifier les délais même si le candidat est déconnecté.
+
+Le serveur doit rester l'autorité pour le calcul des échéances. Le compte à rebours React n'est qu'un affichage.
+
+Prévoir des opérations idempotentes et des transactions pour éviter les conflits entre une correction soumise à la dernière seconde et une tâche automatique d'expiration.
+
+## 11. Présélection sur dossier
+
+Seuls les dossiers complets et recevables peuvent entrer en présélection.
+
+Les personnes habilitées peuvent :
+
+- Consulter les dossiers.
+- Examiner les documents.
+- Donner un avis.
+- Enregistrer les observations.
+- Déterminer les candidatures présélectionnées.
+- Déterminer les candidatures non présélectionnées.
+
+La décision de présélection doit être enregistrée et traçable.
+
+Après validation :
+
+- Le candidat présélectionné passe à l'étape de convocation.
+- Le candidat non présélectionné reçoit une notification appropriée.
+
+## 12. Gestion complète des entretiens
+
+Créer un module d'entretiens comprenant :
+
+### Calendrier
+
+Utiliser FullCalendar.
+
+Afficher les entretiens par jour, semaine et mois.
+
+Permettre aux responsables habilités de :
+
+- Créer un entretien.
+- Sélectionner le candidat.
+- Choisir la date.
+- Choisir l'heure.
+- Définir la durée.
+- Définir la salle ou le lieu.
+- Affecter les membres de la commission.
+- Consulter les disponibilités.
+- Modifier ou annuler une programmation avec justification.
+
+Éviter les conflits d'horaires pour les salles et les personnes affectées.
+
+### Convocations
+
+Lorsqu'un entretien est programmé :
+
+- Envoyer un email au candidat.
+- Créer une notification interne.
+- Afficher la convocation dans son tableau de bord.
+- Afficher la date, l'heure et le lieu.
+- Mettre à jour la barre d'avancement.
+
+En cas de modification, envoyer une nouvelle notification.
+
+### Évaluation des entretiens
+
+Après l'entretien, les évaluateurs autorisés peuvent saisir :
+
+- Une note numérique entre 0 et 20.
+- Un commentaire obligatoire.
+- La date de l'évaluation.
+- L'identité de l'évaluateur.
+
+Empêcher les notes hors intervalle.
+
+Conserver l'historique des modifications.
+
+Une note ne doit pas entraîner automatiquement une admission.
+
+**Aucun seuil de réussite automatique à 10/20 ne doit être imposé.**
+
+La commission utilise les évaluations pour délibérer.
+
+## 13. Délibération et résultats
+
+Après les entretiens, la commission examine les dossiers et les évaluations.
+
+Prévoir trois résultats principaux :
+
+1. **Admis**
+2. **Liste d'attente**
+3. **Refusé**
+
+Le système doit permettre :
+
+- La préparation des résultats.
+- Leur validation par le responsable habilité.
+- La publication officielle.
+- La consultation des résultats par chaque candidat.
+- L'envoi des notifications par email.
+
+Les résultats non publiés ne doivent pas être visibles par les candidats.
+
+La liste d'attente doit pouvoir être ordonnée et gérée par les personnes habilitées.
+
+Prévoir, si une place se libère, la possibilité de promouvoir un candidat de la liste d'attente vers la liste des admis, avec justification, contrôle des autorisations et journalisation.
+
+## 14. Inscription administrative initiale en présentiel
+
+L'inscription finale ne se fait pas entièrement en ligne.
+
+Lorsqu'un candidat est admis :
+
+1. Il reçoit un email d'admission.
+2. Il consulte les instructions administratives.
+3. Il prend connaissance des documents à présenter.
+4. Il signe la charte de thèse selon la procédure de l'établissement.
+5. Il se présente physiquement à l'établissement.
+6. Le responsable vérifie les pièces et la charte signée.
+7. Le responsable confirme son inscription dans le back-office.
+8. Le candidat reçoit un email de confirmation.
+
+Prévoir les statuts :
+
+- Admission publiée
+- En attente d'inscription
+- Inscription en cours de vérification
+- Inscription confirmée
+
+Le responsable doit pouvoir enregistrer :
+
+- La date de présentation.
+- La vérification des documents.
+- La vérification de la charte signée.
+- La date de confirmation.
+- L'identité de la personne ayant confirmé l'inscription.
+
+La barre d'avancement atteint 100 % lorsque l'inscription administrative est officiellement confirmée.
+
+Ne pas ajouter de module de suivi doctoral après cette confirmation.
+
+## 15. Barre d'avancement dynamique
+
+C'est une fonctionnalité centrale de l'application.
+
+Chaque candidat doit voir une représentation visuelle de son parcours.
+
+Les grandes étapes sont :
+
+1. Candidature déposée
+2. Dossier vérifié
+3. Présélection
+4. Entretien
+5. Résultats
+6. Inscription initiale
+
+Afficher clairement :
+
+- Les étapes terminées.
+- L'étape actuelle.
+- Les étapes futures.
+- Les éventuels blocages.
+- Les corrections demandées.
+- Le délai restant.
+- Les refus et expirations.
+
+Ne pas confondre le pourcentage de progression avec une probabilité d'admission.
+
+Un candidat refusé doit voir son parcours arrêté, et non une progression artificielle à 100 %.
+
+Créer un composant React réutilisable pour cette barre.
+
+## 16. Notifications et emails automatiques
+
+Prévoir deux canaux :
+
+- Notifications dans l'application.
+- Notifications par email.
+
+Les événements importants comprennent :
+
+- Création du compte.
+- Dépôt de candidature.
+- Dossier déclaré incomplet.
+- Début du délai de correction.
+- Correction soumise.
+- Expiration du délai.
+- Présélection réussie ou échouée.
+- Convocation à l'entretien.
+- Modification d'entretien.
+- Publication des résultats.
+- Admission depuis la liste d'attente.
+- Instructions d'inscription.
+- Confirmation de l'inscription.
+
+Créer des modèles d'emails professionnels en français.
+
+Prévoir :
+
+- Historique des notifications.
+- Notifications lues et non lues.
+- Dates d'envoi.
+- Statuts de livraison.
+- Gestion des échecs d'envoi.
+- Possibilité de réessayer les envois.
+
+Utiliser une configuration SMTP par variables d'environnement.
+
+En développement, prévoir un mode de test des emails sans envoi réel.
+
+## 17. Journalisation et audit
+
+Chaque opération importante doit être tracée.
+
+Enregistrer au minimum :
+
+- Utilisateur concerné.
+- Action effectuée.
+- Type de ressource.
+- Identifiant de la ressource.
+- Date et heure.
+- Ancien statut.
+- Nouveau statut.
+- Motif ou commentaire lorsque nécessaire.
+
+Exemples :
+
+- Un candidat soumet son dossier.
+- Un responsable demande une correction.
+- Le système rejette automatiquement un dossier.
+- Un entretien est reprogrammé.
+- Un évaluateur saisit une note.
+- Un directeur valide les résultats.
+- Un administrateur confirme une inscription.
+
+Créer une page de consultation des journaux dans le back-office, avec filtres et recherche.
+
+Les journaux ne doivent pas être librement modifiables ou supprimables par les utilisateurs ordinaires.
+
+Ne jamais enregistrer les mots de passe, les jetons d'authentification ou le contenu sensible des documents dans les logs.
+
+## 18. Pages à développer
+
+### Pages publiques
+
+- Accueil
+- Présentation de la campagne
+- Liste des sujets
+- Détails d'un sujet
+- Connexion
+- Inscription
+- Mot de passe oublié
+
+### Espace candidat
+
+- Tableau de bord
+- Profil
+- Sujets de thèse
+- Formulaire de candidature
+- Gestion des documents
+- Suivi de candidature
+- Corrections demandées
+- Convocation à l'entretien
+- Résultats
+- Instructions d'inscription
+- Notifications
+
+### Espace directeur de thèse
+
+- Tableau de bord
+- Mes sujets
+- Candidatures associées
+- Présélection
+- Calendrier des entretiens
+- Évaluation des candidats
+- Résultats consultables
+
+### Espace directeur
+
+- Tableau de bord général
+- Supervision des candidatures
+- Présélection
+- Commissions
+- Calendrier
+- Évaluations
+- Délibération
+- Validation des résultats
+- Suivi des inscriptions
+- Statistiques
+
+### Espace administrateur
+
+- Tableau de bord
+- Configuration de la campagne
+- Gestion des utilisateurs
+- Gestion des sujets
+- Gestion des documents exigés
+- Gestion des candidatures
+- Gestion des entretiens
+- Gestion des résultats
+- Confirmation des inscriptions
+- Notifications
+- Journal d'audit
+- Paramètres
+
+## 19. Tableaux de bord et statistiques
+
+Créer des tableaux de bord adaptés à chaque rôle.
+
+Pour le back-office, afficher notamment :
+
+- Nombre total de candidats.
+- Nombre de candidatures soumises.
+- Nombre de dossiers complets.
+- Nombre de dossiers incomplets.
+- Nombre de corrections en cours.
+- Nombre de dossiers rejetés pour expiration.
+- Nombre de candidats présélectionnés.
+- Nombre d'entretiens programmés.
+- Nombre d'entretiens réalisés.
+- Nombre d'admis.
+- Nombre de candidats en liste d'attente.
+- Nombre de refusés.
+- Nombre d'inscriptions confirmées.
+
+Ajouter des graphiques simples et des filtres pertinents.
+
+Les statistiques doivent provenir des données réelles de MySQL, et non de valeurs codées en dur.
+
+## 20. Modélisation de la base de données
+
+Conçois un schéma relationnel MySQL cohérent.
+
+Prévoir au minimum les entités suivantes :
+
+- `users`
+- `roles` ou gestion équivalente des rôles
+- `campaign`
+- `thesis_subjects`
+- `applications`
+- `required_document_types`
+- `application_documents`
+- `document_reviews`
+- `correction_requests`
+- `selection_committees`
+- `committee_members`
+- `preselection_reviews`
+- `interviews`
+- `interview_evaluations`
+- `selection_decisions`
+- `enrollments`
+- `notifications`
+- `email_deliveries`
+- `audit_logs`
+
+Tu peux adapter cette structure pour respecter les principes de normalisation.
+
+Définis :
+
+- Les clés primaires et étrangères.
+- Les contraintes d'unicité.
+- Les index nécessaires.
+- Les relations Prisma.
+- Les champs de dates.
+- Les statuts.
+- Les règles d'intégrité.
+
+Garantis qu'un candidat ne peut pas soumettre plusieurs candidatures pendant l'unique campagne.
+
+Utilise des transactions pour les décisions critiques.
+
+## 21. Sécurité
+
+Applique les bonnes pratiques suivantes :
+
+- Authentification sécurisée.
+- Hachage des mots de passe.
+- Gestion des permissions par rôle et par ressource.
+- Protection des routes.
+- Validation de toutes les entrées.
+- Protection contre les injections SQL.
+- Protection contre les attaques XSS et CSRF selon l'architecture retenue.
+- Cookies HttpOnly, Secure en production et SameSite approprié.
+- Limitation des tentatives de connexion.
+- Vérification des fichiers téléversés.
+- Stockage privé des documents.
+- Accès contrôlé aux fichiers.
+- Protection des données personnelles.
+- Gestion centralisée des erreurs.
+- Variables d'environnement pour les secrets.
+
+Ne jamais exposer les documents privés d'un candidat à un autre candidat.
+
+## 22. Expérience utilisateur
+
+L'application doit être facile à utiliser, même pour un candidat peu habitué aux plateformes administratives.
+
+Prévoir :
+
+- Messages d'aide dans les formulaires.
+- Validation claire des champs.
+- Indication des champs obligatoires.
+- Confirmation avant soumission définitive.
+- Sauvegarde des brouillons.
+- Affichage des documents déjà déposés.
+- Messages explicites en cas d'erreur.
+- Écrans de chargement.
+- États vides.
+- Navigation cohérente.
+- Accessibilité au clavier.
+- Affichage adapté aux petits écrans.
+
+L'ensemble des libellés et messages doit être en français.
+
+## 23. API REST
+
+Développe une API REST structurée par modules.
+
+Prévoir des endpoints pour :
+
+- Authentification.
+- Utilisateurs.
+- Campagne.
+- Sujets.
+- Candidatures.
+- Documents.
+- Vérification et corrections.
+- Présélection.
+- Commissions.
+- Entretiens.
+- Évaluations.
+- Résultats.
+- Inscriptions.
+- Notifications.
+- Statistiques.
+- Journaux d'audit.
+
+Sépare les routes, contrôleurs, services, validations et middlewares.
+
+Documente les principaux endpoints, leurs permissions, leurs paramètres et leurs réponses.
+
+## 24. Tests et fiabilité
+
+Prévoir des tests pour les règles métier critiques :
+
+- Un candidat ne peut soumettre qu'une seule candidature.
+- Le sujet ne peut pas être changé après soumission.
+- Une candidature incomplète reçoit une échéance de 72 heures.
+- Une correction soumise avant l'échéance n'est pas rejetée automatiquement.
+- Une correction non soumise à temps entraîne un rejet.
+- Une note d'entretien doit être comprise entre 0 et 20.
+- Les résultats non publiés restent invisibles aux candidats.
+- Seuls les responsables habilités peuvent confirmer une inscription.
+- Les accès aux documents sont correctement protégés.
+
+Utilise des données fictives pour les tests.
+
+## 25. Livrables attendus
+
+Je veux que tu produises :
+
+1. Une architecture complète du projet.
+2. Une structure claire des dossiers.
+3. Le schéma Prisma pour MySQL.
+4. Les migrations de base de données.
+5. Le backend Express fonctionnel.
+6. Le frontend React fonctionnel.
+7. L'authentification et les autorisations.
+8. Les interfaces des quatre rôles.
+9. Le workflow complet des candidatures.
+10. Le module de correction sous 72 heures.
+11. Le calendrier et les évaluations des entretiens.
+12. Les notifications et emails.
+13. La journalisation.
+14. Des données de démonstration fictives.
+15. Un fichier `.env.example`.
+16. Un README avec les instructions d'installation et d'exécution.
+17. Des tests des fonctionnalités essentielles.
+
+## 26. Méthode de travail obligatoire
+
+Ne commence pas par générer des dizaines de pages indépendantes sans architecture.
+
+Travaille progressivement et de manière cohérente.
+
+### Phase 1 — Analyse et architecture
+
+Présente :
+
+- Les modules.
+- Les responsabilités des rôles.
+- Les règles métier.
+- Le diagramme du processus.
+- Le modèle de données.
+- La structure des dossiers.
+
+Identifie les hypothèses nécessaires sans inventer de nouvelles obligations réglementaires.
+
+### Phase 2 — Initialisation technique
+
+Crée :
+
+- Le projet React.
+- Le serveur Express.
+- La connexion MySQL.
+- Le schéma Prisma.
+- Les variables d'environnement.
+- Les scripts de lancement.
+
+### Phase 3 — Authentification et rôles
+
+Implémente les comptes, les connexions et les autorisations.
+
+### Phase 4 — Campagne, sujets et candidatures
+
+Implémente la publication des sujets, les formulaires, les documents et les soumissions.
+
+### Phase 5 — Vérification et corrections
+
+Implémente les statuts, les demandes de correction, les délais de 72 heures et les rejets automatiques.
+
+### Phase 6 — Présélection et entretiens
+
+Implémente les commissions, le calendrier, les convocations, les notes et les commentaires.
+
+### Phase 7 — Résultats et inscriptions
+
+Implémente les décisions, les listes d'attente et la confirmation administrative en présentiel.
+
+### Phase 8 — Fonctionnalités transversales
+
+Finalise les notifications, les emails, la barre d'avancement, les statistiques et la journalisation.
+
+### Phase 9 — Tests et finalisation
+
+Vérifie les workflows complets et corrige les erreurs.
+
+## 27. Exigences finales
+
+- Ne produis pas uniquement une démonstration visuelle.
+- N'utilise pas de données statiques pour simuler des fonctionnalités censées être réelles.
+- Ne laisse pas de boutons sans action.
+- Ne remplace pas les opérations backend par des changements d'état uniquement côté React.
+- Ne crée pas de fausse authentification.
+- N'oublie pas la vérification des permissions.
+- N'oublie pas le délai de correction de 72 heures.
+- N'oublie pas la journalisation.
+- N'oublie pas les notifications par email.
+- N'oublie pas la barre d'avancement.
+- N'oublie pas la liste d'attente.
+- N'ajoute pas de fonctionnalités de suivi des études doctorales après l'inscription initiale.
+
+**Je veux une plateforme universitaire complète, cohérente, professionnelle et réellement utilisable.**
+
+Commence maintenant par la **Phase 1 : analyse fonctionnelle, architecture technique, diagramme du processus, permissions des quatre rôles et conception de la base de données**.
+
+Ensuite, accompagne-moi dans l'implémentation phase par phase, en fournissant le code complet des fichiers concernés, les commandes d'installation et les instructions pour vérifier que chaque fonctionnalité fonctionne avant de passer à la suivante.

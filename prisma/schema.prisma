@@ -1,0 +1,390 @@
+// Prisma Schema pour la Plateforme Doctorat Maroc
+// Conforme à la décision ministérielle n° 1886.23 du 1er août 2024
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  CANDIDAT
+  DIRECTEUR_THESE
+  DIRECTEUR_CED
+  ADMINISTRATEUR
+}
+
+enum CampaignStatus {
+  PREPARATION
+  OUVERTE
+  FERMEE
+  CLOTUREE
+}
+
+enum ApplicationStatus {
+  BROUILLON
+  SOUMISE
+  EN_COURS_VERIFICATION
+  INCOMPLETE
+  EN_ATTENTE_CORRECTION
+  CORRECTION_SOUMISE
+  COMPLETE
+  EN_PRESELECTION
+  NON_PRESELECTIONNEE
+  PRESELECTIONNEE
+  ENTRETIEN_PROGRAMME
+  ENTRETIEN_EFFECTUE
+  EN_ATTENTE_DELIBERATION
+  ADMISE
+  LISTE_ATTENTE
+  REFUSEE
+  REJETEE_DELAI_EXPIRE
+  EN_ATTENTE_INSCRIPTION
+  INSCRIPTION_CONFIRMEE
+}
+
+enum DecisionType {
+  ADMIS
+  LISTE_ATTENTE
+  REFUSE
+}
+
+enum CommitteeRole {
+  PRESIDENT
+  MEMBRE
+  RAPPORTEUR
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String
+  role          Role      @default(CANDIDAT)
+  firstName     String
+  lastName      String
+  phone         String?
+  cin           String?   @unique
+  cneCnie       String?   // Identifiant national (CNE/MASSAR)
+  degreeName    String?   // Diplôme de Master ou équivalent
+  institution   String?   // Établissement d'origine
+  department    String?   // Pour les enseignants
+  isVerified    Boolean   @default(false)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  supervisedTheses     ThesisSubject[]         @relation("SupervisorTheses")
+  applications         Application[]           @relation("CandidateApplications")
+  committeeMemberships CommitteeMember[]
+  preselectionReviews  PreselectionReview[]
+  interviewEvaluations InterviewEvaluation[]
+  verifiedDocuments    DocumentReview[]
+  requestedCorrections CorrectionRequest[]
+  confirmedEnrollments EnrollmentVerification[]
+  notifications        Notification[]
+  auditLogs            AuditLog[]
+
+  @@index([role])
+  @@index([email])
+}
+
+model Campaign {
+  id            String         @id @default(uuid())
+  code          String         @unique // Ex: "DOC-2026-2027"
+  title         String
+  academicYear  String         // Ex: "2026-2027"
+  description   String?        @db.Text
+  status        CampaignStatus @default(PREPARATION)
+  startDate     DateTime
+  endDate       DateTime
+  isCurrent     Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  subjects      ThesisSubject[]
+  applications  Application[]
+  committees    SelectionCommittee[]
+
+  @@index([isCurrent])
+}
+
+model ThesisSubject {
+  id              String      @id @default(uuid())
+  campaignId      String
+  supervisorId    String
+  title           String      @db.VarChar(500)
+  description     String      @db.Text
+  domain          String      // Discipline ou domaine scientifique
+  keywords        String      // Mots-clés séparés par virgules
+  labStructure    String      // Laboratoire ou Équipe de recherche
+  institution     String      // Faculté / École d'ingénieurs affiliée
+  quotaSlots      Int         @default(1)
+  isPublished     Boolean     @default(false)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  campaign        Campaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  supervisor      User        @relation("SupervisorTheses", fields: [supervisorId], references: [id])
+  applications    Application[]
+
+  @@index([campaignId])
+  @@index([supervisorId])
+  @@index([domain])
+}
+
+model Application {
+  id              String            @id @default(uuid())
+  campaignId      String
+  candidateId     String
+  subjectId       String
+  status          ApplicationStatus @default(BROUILLON)
+  currentStepIndex Int              @default(1) // 1 à 6 pour la barre d'avancement
+  progressPercent Int               @default(15) // Progression calculée
+  researchSummary String?           @db.Text
+  submittedAt     DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  campaign        Campaign          @relation(fields: [campaignId], references: [id])
+  candidate       User              @relation("CandidateApplications", fields: [candidateId], references: [id])
+  subject         ThesisSubject     @relation(fields: [subjectId], references: [id])
+
+  documents       ApplicationDocument[]
+  correctionRequests CorrectionRequest[]
+  preselectionReviews PreselectionReview[]
+  interview       Interview?
+  deliberation    DeliberationDecision?
+  enrollment      EnrollmentVerification?
+
+  // Règle métier stricte : 1 candidat = 1 seule candidature par campagne
+  @@unique([campaignId, candidateId], name: "unique_candidate_per_campaign")
+  @@index([status])
+  @@index([subjectId])
+}
+
+model RequiredDocumentType {
+  id            String    @id @default(uuid())
+  code          String    @unique // CV, CIN, DIPLOME_MASTER, RELEVES_NOTES, PROJET_RECHERCHE, LETTRE_MOTIVATION
+  label         String
+  description   String?
+  isRequired    Boolean   @default(true)
+  maxSizeBytes  Int       @default(5242880) // 5 MB par défaut
+  allowedMime   String    @default("application/pdf")
+  displayOrder  Int       @default(1)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  documents     ApplicationDocument[]
+}
+
+model ApplicationDocument {
+  id              String               @id @default(uuid())
+  applicationId   String
+  documentTypeId  String
+  originalName    String
+  storedPath      String
+  mimeType        String
+  sizeBytes       Int
+  version         Int                  @default(1)
+  isCurrent       Boolean              @default(true)
+  uploadedAt      DateTime             @default(now())
+
+  application     Application          @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  documentType    RequiredDocumentType @relation(fields: [documentTypeId], references: [id])
+  reviews         DocumentReview[]
+
+  @@index([applicationId])
+  @@index([documentTypeId])
+}
+
+model DocumentReview {
+  id              String              @id @default(uuid())
+  documentId      String
+  reviewerId      String
+  isApproved      Boolean
+  observations    String?             @db.Text
+  reviewedAt      DateTime            @default(now())
+
+  document        ApplicationDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  reviewer        User                @relation(fields: [reviewerId], references: [id])
+
+  @@index([documentId])
+  @@index([reviewerId])
+}
+
+model CorrectionRequest {
+  id              String      @id @default(uuid())
+  applicationId   String
+  requestedById   String
+  instructions    String      @db.Text
+  missingItems    String      @db.Text // Liste JSON des pièces à corriger
+  deadlineAt      DateTime    // Exactement Date.now() + 72h
+  submittedAt     DateTime?   // Horodatage si le candidat répond à temps
+  isResolved      Boolean     @default(false)
+  createdAt       DateTime    @default(now())
+
+  application     Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  requestedBy     User        @relation(fields: [requestedById], references: [id])
+
+  @@index([applicationId])
+  @@index([deadlineAt])
+  @@index([isResolved])
+}
+
+model SelectionCommittee {
+  id            String            @id @default(uuid())
+  campaignId    String
+  name          String
+  domain        String
+  description   String?
+  createdAt     DateTime          @default(now())
+
+  campaign      Campaign          @relation(fields: [campaignId], references: [id])
+  members       CommitteeMember[]
+  interviews    Interview[]
+}
+
+model CommitteeMember {
+  id            String             @id @default(uuid())
+  committeeId   String
+  userId        String
+  role          CommitteeRole      @default(MEMBRE)
+  appointedAt   DateTime           @default(now())
+
+  committee     SelectionCommittee @relation(fields: [committeeId], references: [id], onDelete: Cascade)
+  user          User               @relation(fields: [userId], references: [id])
+
+  @@unique([committeeId, userId])
+}
+
+model PreselectionReview {
+  id              String      @id @default(uuid())
+  applicationId   String
+  reviewerId      String
+  isPreselected   Boolean
+  scoreEvaluation Float?      // Évaluation sur dossier /20
+  observations    String?     @db.Text
+  reviewedAt      DateTime    @default(now())
+
+  application     Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  reviewer        User        @relation(fields: [reviewerId], references: [id])
+
+  @@unique([applicationId, reviewerId])
+}
+
+model Interview {
+  id              String                @id @default(uuid())
+  applicationId   String                @unique
+  committeeId     String?
+  scheduledDate   DateTime
+  durationMinutes Int                   @default(30)
+  roomLocation    String                // Salle ou lien visio
+  notes           String?               @db.Text
+  isCompleted     Boolean               @default(false)
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  application     Application           @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  committee       SelectionCommittee?   @relation(fields: [committeeId], references: [id])
+  evaluations     InterviewEvaluation[]
+
+  @@index([scheduledDate])
+}
+
+model InterviewEvaluation {
+  id              String    @id @default(uuid())
+  interviewId     String
+  evaluatorId     String
+  score           Float     // Note sur 20 (min 0, max 20)
+  comments        String    @db.Text // Obligatoire
+  submittedAt     DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  interview       Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  evaluator       User      @relation(fields: [evaluatorId], references: [id])
+
+  @@unique([interviewId, evaluatorId])
+}
+
+model DeliberationDecision {
+  id                String       @id @default(uuid())
+  applicationId     String       @unique
+  decision          DecisionType
+  finalScore        Float?       // Moyenne pondérée dossier + entretien
+  waitingListRank   Int?         // Rang si LISTE_ATTENTE (1, 2, 3...)
+  isPublished       Boolean      @default(false)
+  promotedFromWait  Boolean      @default(false)
+  promotionReason   String?      @db.Text
+  decisionDate      DateTime     @default(now())
+  publishedAt       DateTime?
+
+  application       Application  @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([decision])
+  @@index([isPublished])
+}
+
+model EnrollmentVerification {
+  id                      String      @id @default(uuid())
+  applicationId           String      @unique
+  verifiedById            String
+  presentationDate        DateTime    @default(now())
+  diplomasVerified        Boolean     @default(false)
+  transcriptsVerified     Boolean     @default(false)
+  charterSigned           Boolean     @default(false)
+  isConfirmed             Boolean     @default(false)
+  confirmedAt             DateTime?
+  officerRemarks          String?     @db.Text
+
+  application             Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  verifiedBy              User        @relation(fields: [verifiedById], references: [id])
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  userId      String
+  title       String
+  message     String   @db.Text
+  type        String   // INFO, WARNING, SUCCESS, ERROR, DEADLINE, CONVOCATION
+  linkUrl     String?
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+}
+
+model EmailDelivery {
+  id              String   @id @default(uuid())
+  recipientEmail  String
+  subject         String
+  bodyPreview     String   @db.Text
+  status          String   // SENT, PENDING, FAILED
+  errorDetails    String?  @db.Text
+  sentAt          DateTime @default(now())
+}
+
+model AuditLog {
+  id            String   @id @default(uuid())
+  userId        String?
+  action        String   // LOGIN, SUBMIT_APPLICATION, REQUEST_CORRECTION, 72H_EXPIRE, EVALUATE, PUBLISH, ENROLL
+  resourceType  String   // Application, Document, Interview, Decision
+  resourceId    String?
+  previousState String?  @db.Text
+  newState      String?  @db.Text
+  ipAddress     String?
+  userAgent     String?
+  timestamp     DateTime @default(now())
+
+  user          User?    @relation(fields: [userId], references: [id])
+
+  @@index([action])
+  @@index([timestamp])
+  @@index([userId])
+}
